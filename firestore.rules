@@ -3,13 +3,54 @@ service cloud.firestore {
   match /databases/{database}/documents {
     match /users/{userId}/gifts/{giftId} {
       function owner() { return request.auth != null && request.auth.uid == userId; }
+      function validItem(item) {
+        return item is map && item.keys().hasAll(['name', 'status']) && item.keys().hasOnly(['name', 'status'])
+          && item.name is string && item.name.size() > 0 && item.name.size() <= 200
+          && item.status in ['thinking', 'decided', 'bought', 'delivered', 'wrapped'];
+      }
+      function validItems(items) {
+        return items is list && items.size() <= 30
+          && (items.size() <= 0 || validItem(items[0]))
+          && (items.size() <= 1 || validItem(items[1]))
+          && (items.size() <= 2 || validItem(items[2]))
+          && (items.size() <= 3 || validItem(items[3]))
+          && (items.size() <= 4 || validItem(items[4]))
+          && (items.size() <= 5 || validItem(items[5]))
+          && (items.size() <= 6 || validItem(items[6]))
+          && (items.size() <= 7 || validItem(items[7]))
+          && (items.size() <= 8 || validItem(items[8]))
+          && (items.size() <= 9 || validItem(items[9]))
+          && (items.size() <= 10 || validItem(items[10]))
+          && (items.size() <= 11 || validItem(items[11]))
+          && (items.size() <= 12 || validItem(items[12]))
+          && (items.size() <= 13 || validItem(items[13]))
+          && (items.size() <= 14 || validItem(items[14]))
+          && (items.size() <= 15 || validItem(items[15]))
+          && (items.size() <= 16 || validItem(items[16]))
+          && (items.size() <= 17 || validItem(items[17]))
+          && (items.size() <= 18 || validItem(items[18]))
+          && (items.size() <= 19 || validItem(items[19]))
+          && (items.size() <= 20 || validItem(items[20]))
+          && (items.size() <= 21 || validItem(items[21]))
+          && (items.size() <= 22 || validItem(items[22]))
+          && (items.size() <= 23 || validItem(items[23]))
+          && (items.size() <= 24 || validItem(items[24]))
+          && (items.size() <= 25 || validItem(items[25]))
+          && (items.size() <= 26 || validItem(items[26]))
+          && (items.size() <= 27 || validItem(items[27]))
+          && (items.size() <= 28 || validItem(items[28]))
+          && (items.size() <= 29 || validItem(items[29]))
+          ;
+      }
       function validGift() {
         let d = request.resource.data;
         return d.keys().hasAll(['recipient', 'idea', 'status', 'budget', 'url', 'notes', 'year'])
-          && d.keys().hasOnly(['recipient', 'idea', 'status', 'budget', 'url', 'notes', 'year'])
+          && d.keys().hasOnly(['recipient', 'idea', 'status', 'budget', 'url', 'notes', 'year', 'items', 'given'])
+          && (!('items' in d) || validItems(d.items))
+          && (!('given' in d) || d.given is bool)
           && d.recipient is string && d.recipient.size() > 0 && d.recipient.size() <= 100
           && d.idea is string && d.idea.size() <= 200
-          && d.status in ['deciding', 'buying', 'wrapping', 'ready', 'given']
+          && d.status in ['partly decided', 'partly wrapped', 'thinking', 'decided', 'partly bought', 'bought', 'partly delivered', 'delivered', 'wrapped', 'given', 'deciding', 'buying', 'wrapping', 'ready']
           && d.budget is number && d.budget >= 0 && d.budget <= 1000000
           && d.url is string && d.url.size() <= 2000 && (d.url == '' || d.url.matches('https?://.*'))
           && d.notes is string && d.notes.size() <= 2000
